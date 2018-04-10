@@ -1,9 +1,144 @@
-﻿@{
-    ViewBag.Title = "Home Page";
+﻿@model MVC5App.EF.Patient
+
+@{
+    ViewBag.Title = "Index";
 }
 
-<div class="jumbotron">
-    <h1>ASP.NET MVC 5 App</h1>
-    <p class="lead">ASP.NET is a free web framework for building great Web sites and Web applications using HTML, CSS and JavaScript.</p>
+<h2>Index</h2>
+
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+    if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success">
+            <strong>Success!</strong> Successfully registered.
+        </div>
+    }
+        <div class="form-horizontal">
+            <h4>Patient</h4>
+            <hr />
+            @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+            <div class="form-group">
+                @Html.LabelFor(model => model.Fname, htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-md-10">
+                    @Html.TextBoxFor(model => model.Fname, new { @class = "form-control", @maxlength = "50" })
+                    @Html.ValidationMessageFor(model => model.Fname, "", new { @class = "text-danger" })
+                </div>
+            </div>
+
+            <div class="form-group">
+                @Html.LabelFor(model => model.Mname, htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-md-10">
+                    @Html.TextBoxFor(model => model.Mname, new { @class = "form-control", @maxlength = "50" })
+                    @Html.ValidationMessageFor(model => model.Mname, "", new { @class = "text-danger" })
+                </div>
+            </div>
+
+            <div class="form-group">
+                @Html.LabelFor(model => model.Lname, htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-md-10">
+                    @Html.TextBoxFor(model => model.Lname, new { @class = "form-control", @maxlength = "50" })
+                    @Html.ValidationMessageFor(model => model.Lname, "", new { @class = "text-danger" })
+                </div>
+            </div>
+
+            <div class="form-group">
+                @Html.LabelFor(model => model.age, htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-md-10"> 
+                    @Html.TextBoxFor(model => model.age, new { @class = "form-control", @maxlength = "2" })
+
+                    @Html.ValidationMessageFor(model => model.age, "", new { @class = "text-danger" })
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="control-label col-md-2" for="Department_Id">Department</label>
+                <div class="col-md-10">
+                    @Html.DropDownList("Department_Id", (IEnumerable<SelectListItem>)ViewData["DepartmentList"], new { @class = "form-control" })
+                    @Html.ValidationMessageFor(model => model.Department_Id, "", new { @class = "text-danger" })
+                </div>
+            </div>
+
+            <div class="form-group">
+                @Html.LabelFor(model => model.Doctor_Id, htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-md-10">
+                    @Html.DropDownList("Doctor_Id", (IEnumerable<SelectListItem>)ViewData["DoctorList"], new { @class = "form-control" })
+                    @Html.ValidationMessageFor(model => model.Doctor_Id, "", new { @class = "text-danger" })
+                </div>
+            </div>
+
+            <div class="form-group">
+                @Html.LabelFor(model => model.Reg_Date, htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-md-10">
+                    @Html.TextBoxFor(model => model.Reg_Date, new { @class = "form-control", @id = "regdatepicker" })
+
+                    @Html.ValidationMessageFor(model => model.Reg_Date, "", new { @class = "text-danger" })
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div>
+                    <h3>
+                        Patient compaint
+                    </h3>
+                </div>
+            </div>
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <td>Select complaint</td>
+                        <td><button type="button" id="btnAddComplaint">Add more</button></td>
+                    </tr>
+                </thead>
+                <tbody class="tbodyComplaint"></tbody>
+            </table>
+            <div class="form-group">
+                <div class="col-md-offset-2 col-md-10">
+                    <input type="submit" value="Create" id="btnCreate" class="btn btn-default" onclick="return CreateListJsonComplain();" />
+                </div>
+            </div>
+
+            <div class="hide" id="hdnDdl">
+                @Html.DropDownList("SelectedComplainList", (IEnumerable<SelectListItem>)ViewData["ComplainList"], new { @class = "form-control ddlComplaint" })
+            </div>
+            <input type="hidden" id="hdnTextBox" name="ComplaintJson" />
+        </div>
+}
+
+<div>
+    @Html.ActionLink("Back to List", "Index")
 </div>
- 
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}
+<script>
+    $(document).ready(function () { 
+        $('#regdatepicker').datetimepicker({ minDate: new Date(), maxDate: new Date()}); 
+        $("#btnAddComplaint").click(function () {
+            var htmltr = "<tr class='trComplaint'>";
+            htmltr += "<td>" + $("#hdnDdl").html() + "</td>";
+            htmltr += "<td><button type='button' class='btnRemove'>Remove</button></td>";
+            htmltr += "<tr>";
+            $(".tbodyComplaint").append(htmltr);
+        });
+        $(document).on('click', '.btnRemove', function () {
+            $(this).closest('.trComplaint').remove();
+        });
+
+    });
+    function CreateListJsonComplain() {
+        var createComplaintJson = "";
+        var comma = "";
+        if ($(".tbodyComplaint").html().trim() != "") {
+            $(".tbodyComplaint tr.trComplaint").each(function () {
+                createComplaintJson += comma + $(this).find(".ddlComplaint").val();
+                comma = ",";
+            });
+            $("#hdnTextBox").val(createComplaintJson);
+        } 
+        return true;
+    }
+</script>
